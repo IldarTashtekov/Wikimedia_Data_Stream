@@ -27,7 +27,7 @@ libraryDependencies ++= Seq(
 
   //low level integration
   //"org.apache.spark" %% "spark-sql-kafka-0-10" % sparkVersion % Test,
- // "org.apache.spark" %% "spark-streaming-kafka-0-10" % sparkVersion,
+  "org.apache.spark" %% "spark-streaming-kafka-0-10" % sparkVersion,
   "org.apache.spark" % "spark-sql-kafka-0-10_2.12" % sparkVersion,
   "org.apache.spark" %% "spark-streaming-kinesis-asl" % sparkVersion,
 

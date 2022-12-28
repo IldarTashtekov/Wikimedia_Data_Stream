@@ -3,7 +3,6 @@ package kafka_producer
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig}
 import org.apache.kafka.common.serialization.StringSerializer
 import com.launchdarkly.eventsource.EventSource
-import com.launchdarkly.eventsource.EventHandler
 
 import java.net.URI
 import java.util.Properties
@@ -48,7 +47,7 @@ object Wikimedia_Kafka_Producer {
     //start the producer in another thread
     eventSource.start()
 
-    try TimeUnit.MINUTES.sleep(3)
+    try TimeUnit.MINUTES.sleep(7)
     catch {
       case e: InterruptedException =>
         e.printStackTrace()

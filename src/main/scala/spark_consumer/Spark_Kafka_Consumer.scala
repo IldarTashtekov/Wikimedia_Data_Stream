@@ -3,11 +3,14 @@ package spark_consumer
 
 import org.apache.spark.streaming.kafka010._
 import org.apache.kafka.common.serialization.{StringDeserializer, StringSerializer}
+import org.apache.spark.SparkContext
+import org.apache.spark.sql.SparkSession.setActiveSession
 import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
 import org.apache.spark.sql.{DataFrame, Dataset, Row, SparkSession}
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.json4s.jackson.{Json, parseJson}
 
+import java.util.concurrent.TimeUnit
 import scala.collection.mutable
 import scala.reflect.io.File
 
@@ -15,12 +18,11 @@ object Spark_Kafka_Consumer {
 
 
 
-  val spark = SparkSession.builder()
+  val spark: SparkSession = SparkSession.builder()
     .appName("Spark Kafka Consumer")
     .master("local[2]")
     .getOrCreate()
 
-  import spark.implicits._
 
   val ssc = new StreamingContext(spark.sparkContext, Seconds(1))
 
@@ -43,7 +45,7 @@ object Spark_Kafka_Consumer {
     StructField("Number_of_appearances ", IntegerType)
   ))
 
-  val csvPath="src/main/scala/spark_consumer/domains_csv.csv"
+  val csvPath="src/main/scala/spark_consumer/domains_csv"
 
   def readFromKafka() = {
     val topics = Array(kafkaTopic)
@@ -107,22 +109,39 @@ object Spark_Kafka_Consumer {
     }
 
     ssc.start()
-    ssc.awaitTermination()
+
+
+    try TimeUnit.MINUTES.sleep(1)
+    catch {
+      case e: InterruptedException =>
+        e.printStackTrace()
+    }
+
+    ssc.stop(false)
+
   }
 
   def loadCSV(): Unit ={
-    if(File("src/main/scala/spark_consumer/domains_csv.csv").exists){
+    if(File(csvPath).exists){
       val loadCSV_DF = spark.read
         .schema(domMapSchema)
-        .csv("src/main/scala/spark_consumer/domains_csv.csv")
-      /*
-      loadCSV_DF.foreach{row=>
-        val domain = row(0).asInstanceOf[String]
-        val value = row(1).asInstanceOf[Int]
+        .csv(csvPath)
 
+      loadCSV_DF.show()
+
+      loadCSV_DF.foreach{row=>
+
+        val domain:String = row(0).asInstanceOf[String]
+        val value:Int = row(1).asInstanceOf[Int]
         dom_map.put(domain, value)
+
+        //explicitly returns Unit
+        ()
+
       }
- */
+
+      dom_map.foreach(print)
+
     }else{
       println("CSV dont exist, probably this is the first run, if it is not something dont work well")
     }
@@ -132,24 +151,19 @@ object Spark_Kafka_Consumer {
 
   def saveCSV(): Unit ={
 
-    //    val saveCSV_DF = dom_map.toSeq.toDF()
-
-    val rows = dom_map.map(dom=>Row(dom._1,dom._2))
-
-    val seq = Seq(rows)
-
-    val rowRDDs = spark.sparkContext.parallelize(seq)
-
-    spark.createDataFrame(rowRDDs)
-
+    val rows_seq = dom_map.map(dom=>Row(dom._1,dom._2)).toSeq
+    val rowRDDs = spark.sparkContext.parallelize(rows_seq)
+    val saveCSV_DF = spark.createDataFrame(rowRDDs,domMapSchema)
+    saveCSV_DF.write.mode("overwrite").csv(csvPath)
   }
 
 
   def main(args: Array[String]): Unit = {
 
-    //loadCSV()
+    loadCSV()
     readFromKafka()
     saveCSV()
+
   }
 
 }

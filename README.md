@@ -1,7 +1,7 @@
-##Wikimedia Data Stream
+## Wikimedia Data Stream
 ________________________
 
-###About this project
+### About this project
 
 This project was created to implement the knowledge that I was learning
 about Apache Spark and Apache Kafka.

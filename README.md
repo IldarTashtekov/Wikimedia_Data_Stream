@@ -1,6 +1,5 @@
 ##Wikimedia Data Stream
-_______________________
-
+________________________
 
 ###About this project
 

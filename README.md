@@ -1,4 +1,7 @@
 ## Wikimedia Data Stream
+
+<img src="readme_src/wikipediaGIF.gif" width="100" height="100" >
+
 ________________________
 
 ### About this project

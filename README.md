@@ -10,3 +10,5 @@ new created wikimedia articles.
 The data enters from a Kafka producer and then consumed by Spark where I use some 
 low level rdds spark api to count the number of appearence of every domain of the stream
 and later save the domains and the total of appearences in csv file.
+
+![diagram](readme_src/project_diagram.png)

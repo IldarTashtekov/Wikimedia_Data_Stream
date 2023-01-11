@@ -12,4 +12,4 @@ low level rdds spark api to count the number of appearence of every domain of th
 and later save the domains and the total of appearences in csv file.
 
 
-<img src="readme_src/project_diagram.png" width="706" height="400" >
+<img src="readme_src/project_diagram.png" width="353" height="200" >
